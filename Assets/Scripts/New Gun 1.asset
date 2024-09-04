@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66efdc5416a14e74e866852897b944e9, type: 3}
+  m_Name: New Gun 1
+  m_EditorClassIdentifier: 
+  itemName: 
+  itemDescription: 
+  itemIcon: {fileID: 21300000, guid: 5156a72be078d4d0e8593843cdc34294, type: 3}
+  itemPrefab: {fileID: 0}
+  itemType: 3
+  itemRarity: 0
+  bulletType: 0
+  damage: {x: 5, y: 3, z: 1}
+  range: 100
+  fireRate: 10
+  maxBounces: 3
+  mirrorLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  bulletSpeed: 5
+  bulletPrefab: {fileID: 4624932939810377957, guid: be52ae6b45d002d4da216e656aea3917, type: 3}
