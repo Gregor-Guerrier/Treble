@@ -1,0 +1,138 @@
+name: Unity Build CI
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  # ── Windows Build ────────────────────────────────────────────────
+  build-windows:
+    name: Build (Windows)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - name: Cache Library
+        uses: actions/cache@v3
+        with:
+          path: Library
+          key: Library-Windows-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-Windows-
+            Library-
+
+      - name: Build for Windows
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          targetPlatform: StandaloneWindows64
+          buildName: ${{ github.event.repository.name }}
+
+      - name: Upload Windows Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build-Windows-${{ github.sha }}
+          path: build/StandaloneWindows64
+          retention-days: 14
+
+  # ── Mac Build ────────────────────────────────────────────────────
+  build-mac:
+    name: Build (macOS)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - name: Cache Library
+        uses: actions/cache@v3
+        with:
+          path: Library
+          key: Library-Mac-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-Mac-
+            Library-
+
+      - name: Build for macOS
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          targetPlatform: StandaloneOSX
+          buildName: ${{ github.event.repository.name }}
+
+      - name: Upload macOS Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build-Mac-${{ github.sha }}
+          path: build/StandaloneOSX
+          retention-days: 14
+
+  # ── Discord Notification (runs only on push to main = after merge) ──
+  notify-discord:
+    name: Notify Discord
+    runs-on: ubuntu-latest
+    needs: [build-windows, build-mac]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Post build links to Discord
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+          SHORT_SHA: ${{ github.sha }}
+          RUN_ID: ${{ github.run_id }}
+          ACTOR: ${{ github.actor }}
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+        run: |
+          SHORT=${SHA:0:7}
+          ARTIFACTS_URL="https://github.com/${REPO}/actions/runs/${RUN_ID}"
+
+          PAYLOAD=$(cat <<EOF
+          {
+            "embeds": [{
+              "title": "✅ New Main Build Ready",
+              "color": 5763719,
+              "fields": [
+                {
+                  "name": "📝 Commit",
+                  "value": "\`${SHORT}\` — ${COMMIT_MSG}",
+                  "inline": false
+                },
+                {
+                  "name": "👤 Merged by",
+                  "value": "${ACTOR}",
+                  "inline": true
+                },
+                {
+                  "name": "🔗 Download Builds",
+                  "value": "[Click here to download Windows & Mac builds](${ARTIFACTS_URL})\n*(Expand Artifacts at the bottom of the run page)*",
+                  "inline": false
+                }
+              ],
+              "footer": {
+                "text": "Builds expire after 14 days"
+              }
+            }]
+          }
+          EOF
+          )
+
+          curl -s -X POST "$DISCORD_WEBHOOK" \
+            -H "Content-Type: application/json" \
+            -d "$PAYLOAD"
