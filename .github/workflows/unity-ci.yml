@@ -1,12 +1,8 @@
-name: Unity Build CI
+nname: Unity Build CI
 
 on:
   pull_request:
-    branches:
-      - main
   push:
-    branches:
-      - main
 
 jobs:
   # ── Windows Build ────────────────────────────────────────────────
@@ -83,7 +79,7 @@ jobs:
           path: build/StandaloneOSX
           retention-days: 14
 
-# ── Discord: Build Starting (fires on PR and push to main) ──────
+  # ── Discord: Build Starting ──────────────────────────────────────
   notify-discord-start:
     name: Notify Discord (Build Starting)
     runs-on: ubuntu-latest
@@ -127,6 +123,7 @@ jobs:
           EOF
           )
 
+          echo "$PAYLOAD" | python3 -m json.tool
           curl -s -X POST "$DISCORD_WEBHOOK" \
             -H "Content-Type: application/json" \
             -d "$PAYLOAD"
@@ -136,7 +133,7 @@ jobs:
     name: Notify Discord (Success)
     runs-on: ubuntu-latest
     needs: [build-windows, build-mac]
-    if: needs.build-windows.result == 'success' && needs.build-mac.result == 'success'
+    if: always() && needs.build-windows.result == 'success' && needs.build-mac.result == 'success'
     steps:
       - name: Post success to Discord
         env:
@@ -153,10 +150,8 @@ jobs:
 
           if [ "$EVENT" == "push" ]; then
             TITLE="✅ Build Succeeded — New Main Build Ready"
-            EXTRA=", \"name\": \"🔗 Download Builds\", \"value\": \"[Click here](${RUN_URL})\\n*(Expand Artifacts at the bottom of the run page)*\", \"inline\": false"
           else
             TITLE="✅ Build Succeeded — PR Builds Passed"
-            EXTRA=""
           fi
 
           PAYLOAD=$(cat <<EOF
@@ -174,8 +169,12 @@ jobs:
                   "name": "👤 Triggered by",
                   "value": "${ACTOR}",
                   "inline": true
+                },
+                {
+                  "name": "🔗 Download Builds",
+                  "value": "[Click here](${RUN_URL})\n*(Expand Artifacts at the bottom of the run page)*",
+                  "inline": false
                 }
-                ${EXTRA:+,$EXTRA}
               ],
               "footer": {
                 "text": "Builds expire after 14 days"
@@ -185,6 +184,7 @@ jobs:
           EOF
           )
 
+          echo "$PAYLOAD" | python3 -m json.tool
           curl -s -X POST "$DISCORD_WEBHOOK" \
             -H "Content-Type: application/json" \
             -d "$PAYLOAD"
@@ -250,57 +250,7 @@ jobs:
           EOF
           )
 
-          curl -s -X POST "$DISCORD_WEBHOOK" \
-            -H "Content-Type: application/json" \
-            -d "$PAYLOAD"
-    name: Notify Discord
-    runs-on: ubuntu-latest
-    needs: [build-windows, build-mac]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    steps:
-      - name: Post build links to Discord
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-          REPO: ${{ github.repository }}
-          SHA: ${{ github.sha }}
-          SHORT_SHA: ${{ github.sha }}
-          RUN_ID: ${{ github.run_id }}
-          ACTOR: ${{ github.actor }}
-          COMMIT_MSG: ${{ github.event.head_commit.message }}
-        run: |
-          SHORT=${SHA:0:7}
-          ARTIFACTS_URL="https://github.com/${REPO}/actions/runs/${RUN_ID}"
-
-          PAYLOAD=$(cat <<EOF
-          {
-            "embeds": [{
-              "title": "✅ New Main Build Ready",
-              "color": 5763719,
-              "fields": [
-                {
-                  "name": "📝 Commit",
-                  "value": "\`${SHORT}\` — ${COMMIT_MSG}",
-                  "inline": false
-                },
-                {
-                  "name": "👤 Merged by",
-                  "value": "${ACTOR}",
-                  "inline": true
-                },
-                {
-                  "name": "🔗 Download Builds",
-                  "value": "[Click here to download Windows & Mac builds](${ARTIFACTS_URL})\n*(Expand Artifacts at the bottom of the run page)*",
-                  "inline": false
-                }
-              ],
-              "footer": {
-                "text": "Builds expire after 14 days"
-              }
-            }]
-          }
-          EOF
-          )
-
+          echo "$PAYLOAD" | python3 -m json.tool
           curl -s -X POST "$DISCORD_WEBHOOK" \
             -H "Content-Type: application/json" \
             -d "$PAYLOAD"
