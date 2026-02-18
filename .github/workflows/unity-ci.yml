@@ -83,8 +83,176 @@ jobs:
           path: build/StandaloneOSX
           retention-days: 14
 
-  # ── Discord Notification (runs only on push to main = after merge) ──
-  notify-discord:
+# ── Discord: Build Starting (fires on PR and push to main) ──────
+  notify-discord-start:
+    name: Notify Discord (Build Starting)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post build starting to Discord
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+          RUN_ID: ${{ github.run_id }}
+          ACTOR: ${{ github.actor }}
+          COMMIT_MSG: ${{ github.event.head_commit.message || github.event.pull_request.title }}
+        run: |
+          SHORT=${SHA:0:7}
+          RUN_URL="https://github.com/${REPO}/actions/runs/${RUN_ID}"
+
+          PAYLOAD=$(cat <<EOF
+          {
+            "embeds": [{
+              "title": "🔨 Build Starting",
+              "color": 16776960,
+              "fields": [
+                {
+                  "name": "📝 Commit / PR",
+                  "value": "\`${SHORT}\` — ${COMMIT_MSG}",
+                  "inline": false
+                },
+                {
+                  "name": "👤 Triggered by",
+                  "value": "${ACTOR}",
+                  "inline": true
+                },
+                {
+                  "name": "🔗 View Run",
+                  "value": "[Click here](${RUN_URL})",
+                  "inline": true
+                }
+              ]
+            }]
+          }
+          EOF
+          )
+
+          curl -s -X POST "$DISCORD_WEBHOOK" \
+            -H "Content-Type: application/json" \
+            -d "$PAYLOAD"
+
+  # ── Discord: Build Succeeded ─────────────────────────────────────
+  notify-discord-success:
+    name: Notify Discord (Success)
+    runs-on: ubuntu-latest
+    needs: [build-windows, build-mac]
+    if: needs.build-windows.result == 'success' && needs.build-mac.result == 'success'
+    steps:
+      - name: Post success to Discord
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+          RUN_ID: ${{ github.run_id }}
+          ACTOR: ${{ github.actor }}
+          COMMIT_MSG: ${{ github.event.head_commit.message || github.event.pull_request.title }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          SHORT=${SHA:0:7}
+          RUN_URL="https://github.com/${REPO}/actions/runs/${RUN_ID}"
+
+          if [ "$EVENT" == "push" ]; then
+            TITLE="✅ Build Succeeded — New Main Build Ready"
+            EXTRA=", \"name\": \"🔗 Download Builds\", \"value\": \"[Click here](${RUN_URL})\\n*(Expand Artifacts at the bottom of the run page)*\", \"inline\": false"
+          else
+            TITLE="✅ Build Succeeded — PR Builds Passed"
+            EXTRA=""
+          fi
+
+          PAYLOAD=$(cat <<EOF
+          {
+            "embeds": [{
+              "title": "${TITLE}",
+              "color": 5763719,
+              "fields": [
+                {
+                  "name": "📝 Commit / PR",
+                  "value": "\`${SHORT}\` — ${COMMIT_MSG}",
+                  "inline": false
+                },
+                {
+                  "name": "👤 Triggered by",
+                  "value": "${ACTOR}",
+                  "inline": true
+                }
+                ${EXTRA:+,$EXTRA}
+              ],
+              "footer": {
+                "text": "Builds expire after 14 days"
+              }
+            }]
+          }
+          EOF
+          )
+
+          curl -s -X POST "$DISCORD_WEBHOOK" \
+            -H "Content-Type: application/json" \
+            -d "$PAYLOAD"
+
+  # ── Discord: Build Failed ─────────────────────────────────────────
+  notify-discord-failure:
+    name: Notify Discord (Failure)
+    runs-on: ubuntu-latest
+    needs: [build-windows, build-mac]
+    if: always() && (needs.build-windows.result == 'failure' || needs.build-mac.result == 'failure')
+    steps:
+      - name: Post failure to Discord
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+          RUN_ID: ${{ github.run_id }}
+          ACTOR: ${{ github.actor }}
+          COMMIT_MSG: ${{ github.event.head_commit.message || github.event.pull_request.title }}
+          WIN_RESULT: ${{ needs.build-windows.result }}
+          MAC_RESULT: ${{ needs.build-mac.result }}
+        run: |
+          SHORT=${SHA:0:7}
+          RUN_URL="https://github.com/${REPO}/actions/runs/${RUN_ID}"
+
+          if [ "$WIN_RESULT" == "failure" ] && [ "$MAC_RESULT" == "failure" ]; then
+            PLATFORMS="Windows ❌ Mac ❌"
+          elif [ "$WIN_RESULT" == "failure" ]; then
+            PLATFORMS="Windows ❌ Mac ✅"
+          else
+            PLATFORMS="Windows ✅ Mac ❌"
+          fi
+
+          PAYLOAD=$(cat <<EOF
+          {
+            "embeds": [{
+              "title": "❌ Build Failed",
+              "color": 15548997,
+              "fields": [
+                {
+                  "name": "📝 Commit / PR",
+                  "value": "\`${SHORT}\` — ${COMMIT_MSG}",
+                  "inline": false
+                },
+                {
+                  "name": "👤 Triggered by",
+                  "value": "${ACTOR}",
+                  "inline": true
+                },
+                {
+                  "name": "🖥️ Platform Results",
+                  "value": "${PLATFORMS}",
+                  "inline": false
+                },
+                {
+                  "name": "🔗 View Logs",
+                  "value": "[Click here](${RUN_URL})",
+                  "inline": false
+                }
+              ]
+            }]
+          }
+          EOF
+          )
+
+          curl -s -X POST "$DISCORD_WEBHOOK" \
+            -H "Content-Type: application/json" \
+            -d "$PAYLOAD"
     name: Notify Discord
     runs-on: ubuntu-latest
     needs: [build-windows, build-mac]
