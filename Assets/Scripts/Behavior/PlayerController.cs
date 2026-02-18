@@ -117,20 +117,20 @@ public class PlayerController : Health
             moveHorizontal = 0;
         }
         Vector2 movement = new Vector2(moveHorizontal, 0);
-        rb.velocity = new Vector2(movement.x * speed, rb.velocity.y);
+        rb.linearVelocity = new Vector2(movement.x * speed, rb.linearVelocity.y);
 
         if (Input.GetButtonDown("Jump") && isGrounded)
         {
             isJumping = true;
             jumpTimeCounter = 0;
-            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
         }
 
         if (Input.GetButton("Jump") && isJumping)
         {
             if (jumpTimeCounter < maxJumpHeight)
             {
-                rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+                rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
                 jumpTimeCounter += Time.deltaTime;
             }
         }
@@ -141,13 +141,13 @@ public class PlayerController : Health
         }
 
         // Apply fall multiplier to make falling feel more natural
-        if (rb.velocity.y < 0)
+        if (rb.linearVelocity.y < 0)
         {
-            rb.velocity += Vector2.up * Physics2D.gravity.y * (fallMultiplier - 1) * Time.deltaTime;
+            rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (fallMultiplier - 1) * Time.deltaTime;
         }
-        else if (rb.velocity.y > 0 && !Input.GetButton("Jump"))
+        else if (rb.linearVelocity.y > 0 && !Input.GetButton("Jump"))
         {
-            rb.velocity += Vector2.up * Physics2D.gravity.y * (lowJumpMultiplier - 1) * Time.deltaTime;
+            rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (lowJumpMultiplier - 1) * Time.deltaTime;
         }
 
         // Update the grounded status
@@ -215,7 +215,7 @@ public class PlayerController : Health
             loot.GetComponent<Loot>().grounded = false;
             loot.GetComponent<Loot>().corresponding = inventory[slotID];
             loot.GetComponent<Loot>().player = transform;
-            loot.GetComponent<Rigidbody2D>().velocity = Vector3.up * 2f + ((slotID < 3) ? Vector3.left : Vector3.right);
+            loot.GetComponent<Rigidbody2D>().linearVelocity = Vector3.up * 2f + ((slotID < 3) ? Vector3.left : Vector3.right);
             Destroy(slot.GetChild(0).gameObject);
             inventory[slotID] = null;
         }

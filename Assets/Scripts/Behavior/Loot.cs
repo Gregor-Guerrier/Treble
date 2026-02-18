@@ -31,7 +31,7 @@ public class Loot : Follow
         }
         else
         {
-            if (GetComponent<Rigidbody2D>().velocity.magnitude <= 0.01f && grounded == false)
+            if (GetComponent<Rigidbody2D>().linearVelocity.magnitude <= 0.01f && grounded == false)
             {
                 grounded = true;
                 originalPosition = transform.position;
