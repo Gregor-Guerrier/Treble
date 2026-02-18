@@ -1,4 +1,4 @@
-nname: Unity Build CI
+name: Unity Build CI
 
 on:
   pull_request:
