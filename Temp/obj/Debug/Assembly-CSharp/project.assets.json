@@ -8,19 +8,19 @@
     ".NETStandard,Version=v2.1": []
   },
   "packageFolders": {
-    "C:\\Users\\gguer\\.nuget\\packages\\": {}
+    "/Users/marcdavila/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\gguer\\Untitled Game\\Assembly-CSharp.csproj",
+      "projectUniqueName": "/Users/marcdavila/Treble/Assembly-CSharp.csproj",
       "projectName": "Assembly-CSharp",
-      "projectPath": "C:\\Users\\gguer\\Untitled Game\\Assembly-CSharp.csproj",
-      "packagesPath": "C:\\Users\\gguer\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\gguer\\Untitled Game\\Temp\\obj\\Debug\\Assembly-CSharp\\",
+      "projectPath": "/Users/marcdavila/Treble/Assembly-CSharp.csproj",
+      "packagesPath": "/Users/marcdavila/.nuget/packages/",
+      "outputPath": "/Users/marcdavila/Treble/Temp/obj/Debug/Assembly-CSharp/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\gguer\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "/Users/marcdavila/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "netstandard2.1"
@@ -43,7 +43,8 @@
         "enableAudit": "true",
         "auditLevel": "low",
         "auditMode": "direct"
-      }
+      },
+      "SdkAnalysisLevel": "10.0.100"
     },
     "frameworks": {
       "netstandard2.1": {
@@ -59,7 +60,7 @@
         ],
         "assetTargetFallback": true,
         "warn": true,
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.302\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/10.0.102/RuntimeIdentifierGraph.json"
       }
     }
   }

@@ -1,5 +1,8 @@
 is_global = true
 build_property.RootNamespace = 
-build_property.ProjectDir = C:\Users\gguer\Untitled Game\
+build_property.ProjectDir = /Users/marcdavila/Treble/
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.CsWinRTUseWindowsUIXamlProjections = false
+build_property.EffectiveAnalysisLevelStyle = 
+build_property.EnableCodeStyleSeverity = 
