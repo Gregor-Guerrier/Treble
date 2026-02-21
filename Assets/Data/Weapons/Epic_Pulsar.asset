@@ -10,21 +10,22 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 66efdc5416a14e74e866852897b944e9, type: 3}
-  m_Name: New Gun 1
+  m_Name: Epic_Pulsar
   m_EditorClassIdentifier: 
-  itemName: 
-  itemDescription: 
-  itemIcon: {fileID: 21300000, guid: 5156a72be078d4d0e8593843cdc34294, type: 3}
+  itemName: Pulsar
+  itemDescription: A heavy magnetic cannon whose slugs spiral inward toward field
+    cores.
+  itemIcon: {fileID: 0}
   itemPrefab: {fileID: 0}
   itemType: 3
-  itemRarity: 0
-  bulletType: 0
-  damage: {x: 5, y: 3, z: 1}
-  range: 100
-  fireRate: 10
-  maxBounces: 3
+  itemRarity: 3
+  bulletType: 1
+  damage: {x: 9, y: 6, z: 3}
+  range: 75
+  fireRate: 0.8
+  maxBounces: 0
   mirrorLayer:
     serializedVersion: 2
     m_Bits: 0
-  bulletSpeed: 5
-  bulletPrefab: {fileID: 4624932939810377957, guid: be52ae6b45d002d4da216e656aea3917, type: 3}
+  bulletSpeed: 8
+  bulletPrefab: {fileID: 0}

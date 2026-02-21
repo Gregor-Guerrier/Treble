@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66efdc5416a14e74e866852897b944e9, type: 3}
+  m_Name: Epic_Seraph
+  m_EditorClassIdentifier: 
+  itemName: Seraph
+  itemDescription: A magnetic slug that writhes around field edges before snapping
+    to target.
+  itemIcon: {fileID: 0}
+  itemPrefab: {fileID: 0}
+  itemType: 3
+  itemRarity: 3
+  bulletType: 1
+  damage: {x: 7, y: 5, z: 4}
+  range: 65
+  fireRate: 1.3
+  maxBounces: 0
+  mirrorLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  bulletSpeed: 6
+  bulletPrefab: {fileID: 0}
